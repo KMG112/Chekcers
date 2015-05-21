@@ -1,15 +1,24 @@
 var express = require('express');
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 var mongoose = require('mongoose');
 var db = mongoose.connection;
 mongoose.connect('mongodb://localhost/chekcers');
 
 
+app.set("view engine", "hbs")
+app.use(express.static(__dirname + "./public"))
+
 db.on('error', console.error.bind(console, 'connection error:' ));
 db.once('open', function (callback){
 
 });
+
+io.on('connection', function(socket){
+  console.log('a user is connected');
+})
 
 var pieceSchema = mongoose.Schema ({
   color: String,
@@ -139,12 +148,6 @@ piece23.save(function(err, piece){
 piece24.save(function(err, piece){
   if (err) return console.log(err);
 })
-
-
-
-app.set("view engine", "hbs")
-app.use(express.static(__dirname + "./public"))
-
 
 app.get('/', function( req, res ){
   Piece.find(function(err, piece){
