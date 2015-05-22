@@ -2,29 +2,31 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
 var mongoose = require('mongoose');
 var db = mongoose.connection;
+var fs = require('fs')
+var ss = require('socket.io-stream');
 mongoose.connect('mongodb://localhost/chekcers');
 
 
 app.set("view engine", "hbs")
 app.use(express.static(__dirname + "./public"))
 
+
+
 db.on('error', console.error.bind(console, 'connection error:' ));
 db.once('open', function (callback){
 
 });
 
-io.on('connection', function(socket){
-  console.log('a user is connected');
-})
 
 var pieceSchema = mongoose.Schema ({
   color: String,
   position: Number,
   jumped: Boolean
 })
+
+
 
 var Piece = mongoose.model('Piece', pieceSchema)
 
@@ -149,18 +151,33 @@ piece24.save(function(err, piece){
   if (err) return console.log(err);
 })
 
-app.get('/', function( req, res ){
-  Piece.find(function(err, piece){
-    if (err) return console.error(err);
-    res.send(piece)
-  })
+
+
+
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/index.html');
+  
+  
 });
 
-app.post('/', function(req, res){
-  res.send('Hello' + req.params.name + '!!!')
-})
+io.on('connection', function(socket){
+  console.log('a user connected');
+
+  Piece.find({}, "position -_id", function(err, pos){
+    if (err) return console.error(err);
+
+    for(var i =0; i<pos.length; i++){
+
+        ss(socket).emit('position', pos[i].position);
+        }
+
+      })
+});
+
+  
 
 
-app.listen(3000, function(){
+
+http.listen(3000, function(){
   console.log('app listening at http://localhost:3000')
 })
