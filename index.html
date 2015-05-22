@@ -43,7 +43,7 @@
 		  <div class="row">
 		    <div class="square" id="1"></div>
 		    <div class="square" id="2"></div>
-		    <div class="square" i="3"></div>
+		    <div class="square" id="3"></div>
 		    <div class="square" id="4"></div>
 		  </div>
 		  <div class="row">
@@ -95,16 +95,13 @@
 	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 	<script>
 	  var socket = io();
-	  socket.on('positions', function(stream){
-	  	var buffer = "";
-	  	stream.on("data", function(data){
-	  		buffer += data.toString();
-	  	});
-	  	stream.on("end", function(){
-	  		console.log(buffer)
-	  	})
+	  socket.on('position', function (data) {
+    	
 
-	  	// $("#"+p.toString()+".square").text("X")
+    	for(var i = 0; i <data.length; i++){
+    		$("#"+data[i].position+".square").css("background", data[i].color)
+    	}
+
 	  })
 	</script>
   </body>
